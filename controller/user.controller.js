@@ -6,6 +6,25 @@ import jwt from 'jsonwebtoken'
 export async function register(req,res){
     try{
         const {name,email,password}=req.body
+
+        if (!name?.trim() || !email?.trim() || !password?.trim()) {
+            return res.status(400).json({ msg: "All fields are required" });
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+           return res.status(400).json({ msg: "Invalid email format" });
+        }
+
+        const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
+        if (!passwordRegex.test(password)) {
+            return res.status(400).json({
+                msg: "Password must be at least 8 characters and include uppercase, lowercase, number, and special character",
+            });
+        }
+
         const data=await userModel.findOne({email})
         if(data){
             return res.status(409).json({msg:"User already exists"})
@@ -30,12 +49,12 @@ export async function login(req,res){
         const {email,password}=req.body
         const data=await userModel.findOne({email})
         if(!data){
-            return res.status(409).json({msg:"User does not exists"})
+            return res.status(404).json({msg:"User does not exists"})
         }
         else{
             let validPassword = bcrypt.compareSync(password, data.password);
             if(!validPassword){
-                return res.status(403).json({msg:"Invalid Credentials"})
+                return res.status(403).json({msg:"Password is incorrect"})
             }
             const token = jwt.sign({ id: data._id }, 'SECRETKEY',{ expiresIn: "1d" });
             
