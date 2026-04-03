@@ -1,14 +1,14 @@
-import express from 'express'
+import express, { application } from 'express'
 import mongoose from 'mongoose'
 import { productRoute } from './routes/product.route.js'
 import { cartRoute } from './routes/cart.route.js'
 import { userRoute } from './routes/user.route.js'
-
+import cors from "cors"
 
 const app=new express()
 const port=3000
 
-
+app.use(cors()) 
 app.use(express.json())   //body parsing middleware
 
 //cloud DB
